@@ -22,9 +22,13 @@ public class AuthService {
         // 1. Parse domain from email (e.g., alex@annauniv.edu -> annauniv.edu)
         String domain = email.substring(email.indexOf("@") + 1);
 
+        
+    //System.out.println("EMAIL = " + email);
+    //System.out.println("DOMAIN = [" + domain + "]");
         // 2. Validate college domain exists (Tenant Lock)
         College college = collegeRepository.findByDomain(domain)
                 .orElseThrow(() -> new IllegalArgumentException("Your college email domain is not registered on CampusConnect."));
+    //System.out.println("FOUND COLLEGE = " + college.getName());
 
         // 3. Check if user already exists
         if (userRepository.existsByEmail(email)) {

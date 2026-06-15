@@ -25,7 +25,13 @@ public class AuthController {
             String email = request.get("email");
             String password = request.get("password");
 
-            User registeredUser = authService.registerUser(name, email, password);
+            //User registeredUser = authService.registerUser(name, email, password);
+            User registeredUser =
+        authService.registerUser(
+                email,
+                password,
+                name
+        );
             return ResponseEntity.ok(registeredUser);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
