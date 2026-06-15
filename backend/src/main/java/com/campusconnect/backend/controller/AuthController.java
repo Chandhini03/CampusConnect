@@ -4,7 +4,8 @@ import com.campusconnect.backend.entity.User;
 import com.campusconnect.backend.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.campusconnect.backend.dto.LoginRequest;
+import com.campusconnect.backend.dto.LoginResponse;
 import java.util.Map;
 
 @RestController
@@ -28,6 +29,16 @@ public class AuthController {
             return ResponseEntity.ok(registeredUser);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            String jwt = authService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
+            return ResponseEntity.ok(new LoginResponse(jwt));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
         }
     }
 }

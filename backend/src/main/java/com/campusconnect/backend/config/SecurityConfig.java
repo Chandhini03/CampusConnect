@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -11,19 +13,19 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Disable CSRF protection (required for testing POST requests via Postman)
-            .csrf(csrf -> csrf.disable())
-            
-            // 2. Configure URL authorization rules
+            .csrf(csrf -> csrf.disable()) // Disabled for testing/stateless API
             .authorizeHttpRequests(auth -> auth
-                // Allow absolutely anyone to hit the registration endpoint
-                .requestMatchers("/api/auth/register").permitAll()
-                // Any other URL request must be authenticated
+                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                 .anyRequest().authenticated()
             );
-
+        
         return http.build();
     }
 }
