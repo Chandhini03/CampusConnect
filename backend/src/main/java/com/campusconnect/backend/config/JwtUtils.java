@@ -53,14 +53,13 @@ public class JwtUtils {
         return claims.get("college_id", Long.class);
     }
 
-    // Validate Token expiration and signatures
     public boolean validateToken(String token) {
-        try {
-            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
-            return true;
-        } catch (Exception e) {
-            // Log exceptions (ExpiredJwtException, MalformedJwtException, etc.)
-            return false;
+    try {
+        Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
+        return true;
+    } catch (Exception e) {
+        // Silently fail for malformed/expired tokens to keep telemetry clean
+        return false;
         }
     }
 }
