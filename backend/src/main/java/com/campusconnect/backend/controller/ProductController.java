@@ -1,15 +1,14 @@
 package com.campusconnect.backend.controller;
 
-import com.campusconnect.backend.entity.Product;
-import com.campusconnect.backend.entity.User;
+import com.campusconnect.backend.dto.ProductRequest;
+import com.campusconnect.backend.dto.ProductResponse;
 import com.campusconnect.backend.service.ProductService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/products")
@@ -21,26 +20,28 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // POST: Create a listing (Protected Endpoint)
     @PostMapping
-    public ResponseEntity<Product> addProduct(@RequestBody Map<String, Object> request, 
-                                              @AuthenticationPrincipal User loggedInUser) {
-        
-        String title = (String) request.get("title");
-        String description = (String) request.get("description");
-        BigDecimal price = new BigDecimal(request.get("price").toString());
-        String imageUrl = (String) request.get("imageUrl");
-
-        // loggedInUser is populated directly out of your JWT token properties!
-        Product newProduct = productService.createProduct(title, description, price, imageUrl, loggedInUser);
-        return ResponseEntity.ok(newProduct);
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request, Principal principal) {
+        ProductResponse response = productService.createProduct(request, principal.getName());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // GET: View the campus marketplace feed (Protected Endpoint)
     @GetMapping
-    public ResponseEntity<List<Product>> getCampusMarketplace(@AuthenticationPrincipal User loggedInUser) {
-        // Automatically isolates items to the user's own college ID
-        List<Product> feed = productService.getProductsByCampus(loggedInUser.getCollege().getId());
-        return ResponseEntity.ok(feed);
+    public ResponseEntity<List<ProductResponse>> getAllProducts(Principal principal) {
+        // principal.getName() automatically contains the email extracted from the JWT token
+        List<ProductResponse> responses = productService.getProductsForUserCollege(principal.getName());
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable String id) {
+        ProductResponse response = productService.getProductById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable String id, @RequestBody ProductRequest request, Principal principal) {
+        ProductResponse response = productService.updateProduct(id, request, principal.getName());
+        return ResponseEntity.ok(response);
     }
 }
