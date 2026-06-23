@@ -1,0 +1,38 @@
+1. What is Principal?
+A standard Java object that represents the currently authenticated user making the API request.
+
+Purpose: It prevents you from having to manually write token-parsing code in every single controller method.
+
+Usage: Calling principal.getName() instantly returns the user's identifying string (in our app, their email).
+
+2. How the Principal Gets Its Data (The Request Flow)
+Step 1 (The Request): The client sends an API request with the JWT inside the Authorization header.
+
+Step 2 (The Intercept): Your JwtAuthenticationFilter intercepts the request before it reaches the controller.
+
+Step 3 (The Extraction): The Filter extracts the token string from the header and asks JwtUtils to decode the email inside it.
+
+Step 4 (The Memory Box): The Filter places that decoded email into Spring Security's SecurityContextHolder (Spring's secure memory box).
+
+Step 5 (The Handoff): When the request finally reaches the controller, Spring grabs the email from its memory box, wraps it in the Principal object, and automatically injects it into your method.
+
+3. Where JWT Extraction Actually Happens (The 3 Files)
+File 1: JwtUtils.java (The Workhorse)
+
+Role: The only file that physically cracks open the JWT, verifies the secret key, and reads the payload.
+
+Action: Contains the code that actually pulls the email (Subject) and college_id out of the token's claims.
+
+Rule: If you ever need to add new data to a token (like a user role), you update this file.
+
+File 2: JwtAuthenticationFilter.java (The Interceptor)
+
+Role: The bouncer that checks the headers.
+
+Action: Slices the "Bearer " prefix off the string, hands the raw token to JwtUtils to get the email, and then saves that email into Spring's secure memory.
+
+File 3: Controllers (e.g., OpportunityController.java) (The Destination)
+
+Role: The final stop for the request.
+
+Action: Simply asks for the Principal object in the method parameters to retrieve the user's identity and run the application logic (like verifying if they own a post before deleting it).
