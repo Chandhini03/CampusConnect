@@ -4,51 +4,60 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 @Component
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
+    private final UserDetailsService userDetailsService;
+
+    public JwtAuthenticationFilter(JwtUtils jwtUtils, UserDetailsService userDetailsService) {
+        this.jwtUtils = jwtUtils;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, 
+                                    HttpServletResponse response, 
+                                    FilterChain filterChain) throws ServletException, IOException {
+        
+        final String authHeader = request.getHeader("Authorization");
 
-        String header = request.getHeader("Authorization");
-
-        // 1. If there's no token, just move on (SecurityConfig will block them anyway)
-        if (header == null || !header.startsWith("Bearer ")) {
-            chain.doFilter(request, response);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        // 2. Cut off the "Bearer " part to get the pure token string
-        String token = header.substring(7);
+        final String jwt = authHeader.substring(7);
         
-        // ADD THESE PRINT STATEMENTS TO DEBUG:
-        System.out.println("Received Token: " + token);
-        boolean isValid = jwtUtils.validateToken(token);
-        System.out.println("Is Token Valid? " + isValid);
+        try {
+            final String userEmail = jwtUtils.getEmailFromToken(jwt);
 
-        
-        // 3. If the token is valid, tell Spring Security this user is officially logged in!
-        if (jwtUtils.validateToken(token)) {
-            String email = jwtUtils.getEmailFromToken(token);
-            
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+
+                if (jwtUtils.validateToken(jwt)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+        } catch (Exception e) {
+            // Added the print statement here so it doesn't fail silently for us!
+            System.out.println("JWT Authentication failed: " + e.getMessage());
         }
-
-        // 4. Continue to the next step
-        chain.doFilter(request, response);
+        
+        filterChain.doFilter(request, response);
     }
 }
