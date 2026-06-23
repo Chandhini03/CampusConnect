@@ -54,7 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // Token is invalid expired, let it fail silently
+            // Added the print statement here so it doesn't fail silently for us!
+            System.out.println("JWT Authentication failed: " + e.getMessage());
         }
         
         filterChain.doFilter(request, response);
