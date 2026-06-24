@@ -80,7 +80,7 @@ public class OpportunityController {
     ) {
         try {
             String loggedInEmail = principal.getName(); 
-            Opportunity updated = opportunityService.updateOpportunity(
+            opportunityService.updateOpportunity(
                     id, 
                     loggedInEmail, 
                     request.getTitle(), 

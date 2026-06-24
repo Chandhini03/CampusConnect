@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Data
 public class OpportunityResponse {
-    private Long id; // Or UUID depending on your primary key
+    private UUID id;
     private String title;
     private String description;
     private String category;

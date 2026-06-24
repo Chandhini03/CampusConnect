@@ -41,7 +41,7 @@ public class OpportunityService {
         return opportunityRepository.findByCollegeIdOrderByPostedAtDesc(collegeId);
     }
     // 3. Update an existing opportunity (Only if the user owns it)
-    public Opportunity updateOpportunity(Long opportunityId, String loggedInEmail, String title, String description, String category, String applicationLink) {
+    public Opportunity updateOpportunity(UUID opportunityId, String loggedInEmail, String title, String description, String category, String applicationLink) {
         
         // Find the opportunity in the database
         Opportunity existingOpportunity = opportunityRepository.findById(opportunityId)
@@ -62,7 +62,7 @@ public class OpportunityService {
     }
 
     // 4. Delete an opportunity (Only if the user owns it)
-    public void deleteOpportunity(Long opportunityId, String loggedInEmail) {
+    public void deleteOpportunity(UUID opportunityId, String loggedInEmail) {
         
         Opportunity existingOpportunity = opportunityRepository.findById(opportunityId)
                 .orElseThrow(() -> new IllegalArgumentException("Opportunity not found"));
