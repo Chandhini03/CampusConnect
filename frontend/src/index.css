@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { @apply box-border; }
+  body { @apply m-0 bg-cream font-sans text-ink antialiased; }
+  button, input, textarea, select { @apply font-sans; }
+  button { @apply transition duration-200; }
+}
+
+@layer components {
+  .field { @apply w-full rounded-2xl border border-ink/10 bg-white px-4 py-3.5 text-sm outline-none transition placeholder:text-ink/35 focus:border-moss focus:ring-4 focus:ring-mint; }
+  .label { @apply mb-2 block text-sm font-bold text-ink/80; }
+  .primary-btn { @apply inline-flex items-center justify-center gap-2 rounded-full bg-sun px-6 py-3 text-sm font-extrabold text-ink shadow-sm hover:-translate-y-0.5 hover:bg-[#ffc067] disabled:cursor-not-allowed disabled:opacity-60; }
+  .secondary-btn { @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-white px-5 py-2.5 text-sm font-bold hover:border-moss hover:bg-mint/50; }
+  .card { @apply rounded-[1.75rem] border border-ink/5 bg-white shadow-soft; }
+}
+
+.auth-grid {
+  background-image: radial-gradient(circle at 16% 22%, rgba(242,166,64,.18) 0 2px, transparent 3px), radial-gradient(circle at 84% 70%, rgba(217,237,228,.3) 0 3px, transparent 4px);
+  background-size: 120px 120px, 150px 150px;
+}
