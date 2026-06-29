@@ -23,8 +23,9 @@ export default function Login() {
       localStorage.setItem(
         "campus_user",
         JSON.stringify({
-          email: form.email,
-          name: form.email.split("@")[0].replace(/[._]/g, " "),
+          email: data.email || form.email,
+          name: data.name || form.email.split("@")[0].replace(/[._]/g, " "),
+          isTutor: data.isTutor || false,
         }),
       );
       navigate("/tutors");

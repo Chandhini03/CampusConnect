@@ -12,4 +12,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     
     // Optional: Fetch all items listed by a specific student (for their "My Listings" page)
     List<Product> findBySellerId(UUID sellerId);
+
+    void deleteBySellerId(UUID sellerId);
 }

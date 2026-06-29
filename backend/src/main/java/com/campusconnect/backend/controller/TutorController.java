@@ -5,10 +5,13 @@ import com.campusconnect.backend.dto.TutorResponse;
 import com.campusconnect.backend.entity.User;
 import com.campusconnect.backend.service.TutorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,4 +39,26 @@ public ResponseEntity<String> registerAsTutor(
     tutorService.createTutorProfile(request, loggedInUser);
     return ResponseEntity.ok("Tutor profile created successfully!");
 }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyTutorProfile(@AuthenticationPrincipal User loggedInUser) {
+        try {
+            return ResponseEntity.ok(tutorService.getMyTutorProfile(loggedInUser));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<TutorResponse> updateMyTutorProfile(
+            @RequestBody TutorRequest request,
+            @AuthenticationPrincipal User loggedInUser) {
+        return ResponseEntity.ok(tutorService.updateTutorProfile(request, loggedInUser));
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<String> deleteMyTutorProfile(@AuthenticationPrincipal User loggedInUser) {
+        tutorService.deleteTutorProfile(loggedInUser);
+        return ResponseEntity.ok("Tutor profile deleted successfully.");
+    }
 }

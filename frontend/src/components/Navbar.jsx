@@ -3,6 +3,7 @@ import {
   LogOut,
   Menu,
   ShoppingBag,
+  UserRound,
   Users,
   X,
 } from "lucide-react";
@@ -14,6 +15,7 @@ const links = [
   { to: "/tutors", label: "Find tutors", icon: Users },
   { to: "/marketplace", label: "Marketplace", icon: ShoppingBag },
   { to: "/opportunities", label: "Opportunities", icon: BriefcaseBusiness },
+  { to: "/profile", label: "Profile", icon: UserRound },
 ];
 
 export default function Navbar() {

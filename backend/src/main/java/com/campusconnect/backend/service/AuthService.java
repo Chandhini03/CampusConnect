@@ -2,11 +2,17 @@ package com.campusconnect.backend.service;
 
 import com.campusconnect.backend.entity.College;
 import com.campusconnect.backend.entity.User;
+import com.campusconnect.backend.dto.UserProfileRequest;
+import com.campusconnect.backend.dto.UserProfileResponse;
 import com.campusconnect.backend.repository.CollegeRepository;
+import com.campusconnect.backend.repository.OpportunityRepository;
+import com.campusconnect.backend.repository.ProductRepository;
+import com.campusconnect.backend.repository.TutorRepository;
 import com.campusconnect.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.campusconnect.backend.config.JwtUtils;
 
 @Service
@@ -15,6 +21,9 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final CollegeRepository collegeRepository;
+    private final TutorRepository tutorRepository;
+    private final ProductRepository productRepository;
+    private final OpportunityRepository opportunityRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
 
@@ -60,4 +69,37 @@ public class AuthService {
     // 3. Generate and return the stateless JWT token packed with college_id
     return jwtUtils.generateToken(user);
 }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    public UserProfileResponse getProfile(String email) {
+        return mapToProfile(getUserByEmail(email));
+    }
+
+    public UserProfileResponse updateProfile(String email, UserProfileRequest request) {
+        User user = getUserByEmail(email);
+        user.setName(request.name());
+        return mapToProfile(userRepository.save(user));
+    }
+
+    @Transactional
+    public void deleteProfile(String email) {
+        User user = getUserByEmail(email);
+        tutorRepository.deleteByUserId(user.getId());
+        productRepository.deleteBySellerId(user.getId());
+        opportunityRepository.deleteByPosterId(user.getId());
+        userRepository.delete(user);
+    }
+
+    private UserProfileResponse mapToProfile(User user) {
+        return new UserProfileResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.isTutor()
+        );
+    }
 }
