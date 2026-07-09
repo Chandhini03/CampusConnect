@@ -79,6 +79,17 @@ public class ProductService {
         return mapToDTO(updatedProduct);
     }
 
+    public void deleteProduct(String productId, String userEmail) {
+        Product product = productRepository.findById(UUID.fromString(productId))
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!product.getSeller().getEmail().equals(userEmail)) {
+            throw new RuntimeException("You are not authorized to delete this product");
+        }
+
+        productRepository.delete(product);
+    }
+
     // Helper method to convert Entity -> DTO
     private ProductResponse mapToDTO(Product product) {
         return new ProductResponse(
@@ -89,6 +100,7 @@ public class ProductService {
                 product.getImageUrl(),
                 product.isAvailable(),
                 product.getSeller().getId().toString(),
+                product.getSeller().getEmail(),
                 product.getSeller().getName()
         );
     }

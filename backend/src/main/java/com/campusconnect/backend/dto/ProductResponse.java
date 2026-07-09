@@ -10,5 +10,6 @@ public record ProductResponse(
     String imageUrl,
     boolean isAvailable,
     String sellerId,
+    String sellerEmail,
     String sellerName
 ) {}

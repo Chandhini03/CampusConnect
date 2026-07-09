@@ -46,7 +46,7 @@ public class AuthController {
         try {
             String jwt = authService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
             User user = authService.getUserByEmail(loginRequest.getEmail());
-            return ResponseEntity.ok(new LoginResponse(jwt, user.getName(), user.getEmail(), user.isTutor()));
+            return ResponseEntity.ok(new LoginResponse(jwt, user.getId().toString(), user.getName(), user.getEmail(), user.isTutor()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(401).body(e.getMessage());
         }

@@ -44,4 +44,10 @@ public class ProductController {
         ProductResponse response = productService.updateProduct(id, request, principal.getName());
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteProduct(@PathVariable String id, Principal principal) {
+        productService.deleteProduct(id, principal.getName());
+        return ResponseEntity.ok("Product deleted successfully.");
+    }
 }

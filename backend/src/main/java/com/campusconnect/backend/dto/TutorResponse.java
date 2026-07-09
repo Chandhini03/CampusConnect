@@ -6,6 +6,8 @@ import java.util.UUID;
 
 public record TutorResponse(
     UUID id,
+    UUID tutorUserId,
+    String tutorEmail,
     String tutorName,
     String branch,
     String yearOfStudy,

@@ -7,6 +7,7 @@ import com.campusconnect.backend.dto.UserProfileResponse;
 import com.campusconnect.backend.repository.CollegeRepository;
 import com.campusconnect.backend.repository.OpportunityRepository;
 import com.campusconnect.backend.repository.ProductRepository;
+import com.campusconnect.backend.repository.TutorRatingRepository;
 import com.campusconnect.backend.repository.TutorRepository;
 import com.campusconnect.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final CollegeRepository collegeRepository;
     private final TutorRepository tutorRepository;
+    private final TutorRatingRepository tutorRatingRepository;
     private final ProductRepository productRepository;
     private final OpportunityRepository opportunityRepository;
     private final PasswordEncoder passwordEncoder;
@@ -88,6 +90,8 @@ public class AuthService {
     @Transactional
     public void deleteProfile(String email) {
         User user = getUserByEmail(email);
+        tutorRepository.findByUserEmail(user.getEmail())
+                .ifPresent(tutor -> tutorRatingRepository.deleteByTutorId(tutor.getId()));
         tutorRepository.deleteByUserId(user.getId());
         productRepository.deleteBySellerId(user.getId());
         opportunityRepository.deleteByPosterId(user.getId());

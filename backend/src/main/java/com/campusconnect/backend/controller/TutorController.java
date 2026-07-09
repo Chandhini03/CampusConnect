@@ -1,6 +1,7 @@
 package com.campusconnect.backend.controller;
 
 import com.campusconnect.backend.dto.TutorRequest;
+import com.campusconnect.backend.dto.TutorRatingRequest;
 import com.campusconnect.backend.dto.TutorResponse;
 import com.campusconnect.backend.entity.User;
 import com.campusconnect.backend.service.TutorService;
@@ -15,8 +16,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tutors")
@@ -60,5 +63,13 @@ public ResponseEntity<String> registerAsTutor(
     public ResponseEntity<String> deleteMyTutorProfile(@AuthenticationPrincipal User loggedInUser) {
         tutorService.deleteTutorProfile(loggedInUser);
         return ResponseEntity.ok("Tutor profile deleted successfully.");
+    }
+
+    @PostMapping("/{id}/rating")
+    public ResponseEntity<TutorResponse> rateTutor(
+            @PathVariable UUID id,
+            @RequestBody TutorRatingRequest request,
+            @AuthenticationPrincipal User loggedInUser) {
+        return ResponseEntity.ok(tutorService.rateTutor(id, request.rating(), loggedInUser));
     }
 }
